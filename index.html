@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI課程教學網站</title>
+  <style>
+    /* 重設及全域樣式 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #12121C; /* 深色背景 */
+      color: #FFFFFF;
+      font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+      line-height: 1.6;
+    }
+    /* 左上角頭像容器 */
+    #profile-container {
+      position: relative;
+      width: 200px;
+      height: 250px;
+      margin: 50px 0 0 50px; /* 可根據需要調整位置 */
+    }
+    #profile-pic {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid #dededf;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    #profile-pic:hover {
+      transform: scale(1.05);
+    }
+    /* 輻射出的短句 (預設隱藏) */
+    .info-item {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      color: #00EEFF;
+      background: rgba(20,20,30,0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      text-shadow: 0 0 4px rgba(0, 255, 255, 0.7);
+    }
+    #profile-container.open .info-item {
+      opacity: 1;
+    }
+    /* 定義 6 個短句展開的位置 */
+    #profile-container.open #info1 { transform: translate(-50%, -50%) translate(0px, -150px) scale(1); }
+    #profile-container.open #info2 { transform: translate(-50%, -50%) translate(130px, -75px) scale(1); }
+    #profile-container.open #info3 { transform: translate(-50%, -50%) translate(130px, 75px) scale(1); }
+    #profile-container.open #info4 { transform: translate(-50%, -50%) translate(0px, 150px) scale(1); }
+    #profile-container.open #info5 { transform: translate(-50%, -50%) translate(-130px, 75px) scale(1); }
+    #profile-container.open #info6 { transform: translate(-50%, -50%) translate(-130px, -75px) scale(1); }
+
+    /* 中央動態背景容器 */
+    #network-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin: 60px 0;
+      overflow: hidden;
+      background-color: #111;
+    }
+    #networkCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #headline {
+     position: absolute;
+      width: 100%;
+      margin: 60px 0;
+      overflow: hidden;
+    }
+
+    #headline h1 {
+      text-align: center;
+      font-size: 3em;
+      margin-left: 100px;
+      color: #d7fab5;
+    }
+
+    /* 專案區標題 */
+    #projects {
+      padding: 20px;
+    }
+    #projects h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      color: #A0D2FF;
+    }
+    /* 卡片容器 (響應式 CSS Grid) */
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    /* 卡片樣式 */
+    .card {
+      background: rgba(20,20,30,0.7);
+      border: 1px solid #333;
+      padding: 12px;
+      border-radius: 8px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0, 255, 255, 0.3);
+    }
+    .card h3 {
+      color: #00CCFF;
+      font-size: 1.1em;
+      margin-bottom: 6px;
+    }
+    .card p {
+      color: #AAAAAA;
+      font-size: 0.95em;
+      margin-bottom: 8px;
+    }
+    .card a {
+      color: #66B3FF;
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+    .card a:hover {
+      text-decoration: underline;
+    }
+
+    /* 手機尺寸調整 */
+    @media (max-width: 600px) {
+      #network-container {
+        height: 250px;
+      }
+      #profile-container {
+        margin: 30px 0 0 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="headline">
+    <h1> AI課程教學網站 </h1>
+</div>  
+  <!-- 左上角圓形個人大頭照 -->
+  <div id="profile-container">
+    <img id="profile-pic" src="head.jpg" alt="個人大頭照">
+    <!-- 六條介紹短句 (預設隱藏) -->
+    <div class="info-item" id="info1">德國馬克思普朗克學程博士</div>
+    <div class="info-item" id="info2">國立台灣海洋大學助理教授</div>
+    <div class="info-item" id="info3">深度學習與電腦視覺</div>
+    <div class="info-item" id="info4">生物影像分析</div>
+    <div class="info-item" id="info5">斑馬魚系統生物學</div>
+    <div class="info-item" id="info6">計算機視覺與人工智慧</div>
+  </div>
+
+  <!-- 中央動態神經網路背景 -->
+  <div id="network-container">
+    <canvas id="networkCanvas"></canvas>
+  </div>
+
+  <!-- 下方 GitHub 專案卡片區 -->
+  <div id="projects">
+    <h2>專案</h2>
+    <div class="card-container">
+      <div class="card">
+        <h3>斑馬魚影像盒</h3>
+        <p>斑馬魚6天大仔魚游泳軌跡追蹤系統。</p>
+        <a href="https://github.com/LBK888/TrackBox" target="_blank">GitHub</a>
+      </div>
+      <div class="card">
+        <h3>生命影像平台</h3>
+        <p>提供多通道顯微鏡影像分析工具。</p>
+        <a href="https://github.com/LBK888/lifeimaging" target="_blank">GitHub</a>
+      </div>
+      <div class="card">
+        <h3>深度學習框架</h3>
+        <p>基於 TensorFlow 的生物影像分析框架。</p>
+        <a href="https://github.com/LBK888/deeplearning-framework" target="_blank">GitHub</a>
+      </div>
+      <div class="card">
+        <h3>AI 教學投影片</h3>
+        <p>電腦視覺與機器學習入門課程。</p>
+        <a href="https://github.com/LBK888/vision-course" target="_blank">GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 點擊頭像後切換介紹短句顯示/隱藏
+    const profileContainer = document.getElementById('profile-container');
+    const profilePic = document.getElementById('profile-pic');
+    profilePic.addEventListener('click', () => {
+      profileContainer.classList.toggle('open');
+    });
+
+    // 動態神經網路動畫 (Canvas)
+    const canvas = document.getElementById("networkCanvas");
+    const ctx = canvas.getContext("2d");
+    let nodes = [];
+    const NODE_COUNT = 40;
+    const LINK_DIST = 120;
+
+    // 初始化畫布尺寸和節點
+    function initCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      nodes = [];
+      for (let i = 0; i < NODE_COUNT; i++) {
+        const node = {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 1,
+          vy: (Math.random() - 0.5) * 1,
+          radius: 2 + Math.random() * 2
+        };
+        nodes.push(node);
+      }
+    }
+
+    // 繪製並更新動畫每幀
+    function drawFrame() {
+      // 清除畫布
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // 繪製節點連線
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < LINK_DIST) {
+            const alpha = 1 - dist / LINK_DIST;
+            ctx.strokeStyle = "rgba(0, 200, 255," + (alpha * 0.5) + ")";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      // 繪製節點圓點
+      nodes.forEach(node => {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgba(0, 200, 255, 0.8)";
+        ctx.fill();
+      });
+      // 更新節點位置並反彈邊界
+      nodes.forEach(node => {
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+      });
+      requestAnimationFrame(drawFrame);
+    }
+
+    // 畫布大小隨視窗調整
+    window.addEventListener('resize', initCanvas);
+
+    // 啟動動畫
+    initCanvas();
+    requestAnimationFrame(drawFrame);
+  </script>
+</body>
+</html>
